@@ -156,7 +156,7 @@ void ClientList::GetCLEIP(uint32 iIP) {
 
 	while(iterator.MoreElements()) {
 		countCLEIPs = iterator.GetData();		
-		if ((countCLEIPs->GetIP() == iIP) && ((countCLEIPs->Admin() < (RuleI(World, ExemptMaxClientsStatus))) || (RuleI(World, ExemptMaxClientsStatus) < 0))) { // If the IP matches, and the connection admin status is below the exempt status, or exempt status is less than 0 (no-one is exempt)
+		if ((countCLEIPs->GetIP() == iIP) && (countCLEIPs->Online() >= CLE_Status_Online) && ((countCLEIPs->Admin() < (RuleI(World, ExemptMaxClientsStatus))) || (RuleI(World, ExemptMaxClientsStatus) < 0))) { // If the IP matches, and the connection admin status is below the exempt status, or exempt status is less than 0 (no-one is exempt)
 			IPInstances++; // Increment the occurences of this IP address
 			Log(Logs::General, Logs::Client_Login, "Account ID: %i Account Name: %s IP: %s.", countCLEIPs->LSID(), countCLEIPs->LSName(), long2ip(countCLEIPs->GetIP()).c_str());
 			if (RuleB(World, EnableIPExemptions)) {
