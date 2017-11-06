@@ -507,6 +507,7 @@ RULE_INT(Combat, NPCAssistCapTimer, 6000) // Time in milliseconds a NPC will tak
 RULE_BOOL(Combat, UseRevampHandToHand, false) // use h2h revamped dmg/delays I believe this was implemented during SoF
 RULE_BOOL(Combat, ClassicMasterWu, false) // classic master wu uses a random special, modern doesn't
 RULE_INT(Combat, LevelToStopDamageCaps, 0) // 1 will effectively disable them, 20 should give basically same results as old incorrect system
+RULE_BOOL(Combat, AllowPetTanking, false) // If true, pets are considered for aggro over players in melee range
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(NPC)
@@ -547,6 +548,7 @@ RULE_INT(Aggro, IntAggroThreshold, 75) // Int <= this will aggro regardless of l
 RULE_BOOL(Aggro, AllowTickPulling, false) // tick pulling is an exploit in an NPC's call for help fixed sometime in 2006 on live
 RULE_BOOL(Aggro, UseLevelAggro, true) // Level 18+ and Undead will aggro regardless of level difference. (this will disabled Rule:IntAggroThreshold if set to true)
 RULE_INT(Aggro, ClientAggroCheckInterval, 6) // Interval in which clients actually check for aggro - in seconds
+RULE_BOOL(Combat, ApplyMeleeRangeAggroModToPets, false) // Enable if "AllowPetTanking" is enabled and you want pets to have tons of aggro
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(TaskSystem)

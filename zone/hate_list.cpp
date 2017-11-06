@@ -371,7 +371,7 @@ Mob *HateList::GetEntWithMostHateOnList(Mob *center, Mob *skip)
 					aggro_mod += RuleI(Aggro, SittingAggroMod);
 				}
 #else
-			if (cur->entity_on_hatelist->IsClient()){
+			if (cur->entity_on_hatelist->IsClient() || (RuleB(Combat, AllowPetTanking) == true && cur->entity_on_hatelist->IsPet())){
 
 				if (cur->entity_on_hatelist->CastToClient()->IsSitting()){
 					aggro_mod += RuleI(Aggro, SittingAggroMod);
@@ -384,7 +384,10 @@ Mob *HateList::GetEntWithMostHateOnList(Mob *center, Mob *skip)
 					if (RuleI(Aggro, MeleeRangeAggroMod) != 0)
 					{
 						if (center->CombatRange(cur->entity_on_hatelist)){
-							aggro_mod += RuleI(Aggro, MeleeRangeAggroMod);
+							
+							if (cur->entity_on_hatelist->IsClient() || (RuleB(Combat, ApplyMeleeRangeAggroModToPets) == true && cur->entity_on_hatelist->IsPet())) {
+								aggro_mod += RuleI(Aggro, MeleeRangeAggroMod);
+							}
 
 							if (current_hate > hate_client_type_in_range || cur->is_entity_frenzy){
 								hate_client_type_in_range = current_hate;
