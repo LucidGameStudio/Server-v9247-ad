@@ -450,11 +450,11 @@ RULE_INT(Combat, DefaultRampageTargets, 1) // default number of people to hit wi
 RULE_BOOL(Combat, RampageHitsTarget, false) // rampage will hit the target if it still has targets left
 RULE_INT(Combat, MaxFlurryHits, 2) //max number of extra hits from flurry
 RULE_INT(Combat, MonkDamageTableBonus, 5) //% bonus monks get to their damage table calcs
-RULE_INT(Combat, FlyingKickBonus, 25) //% Modifier that this skill gets to str and skill bonuses
-RULE_INT(Combat, DragonPunchBonus, 20) //% Modifier that this skill gets to str and skill bonuses
-RULE_INT(Combat, EagleStrikeBonus, 15) //% Modifier that this skill gets to str and skill bonuses
-RULE_INT(Combat, TigerClawBonus, 10) //% Modifier that this skill gets to str and skill bonuses
-RULE_INT(Combat, RoundKickBonus, 5) //% Modifier that this skill gets to str and skill bonuses
+RULE_INT(Combat, FlyingKickBonus, 0) //% Modifier that this skill gets to str and skill bonuses
+RULE_INT(Combat, DragonPunchBonus, 0) //% Modifier that this skill gets to str and skill bonuses
+RULE_INT(Combat, EagleStrikeBonus, 0) //% Modifier that this skill gets to str and skill bonuses
+RULE_INT(Combat, TigerClawBonus, 0) //% Modifier that this skill gets to str and skill bonuses
+RULE_INT(Combat, RoundKickBonus, 0) //% Modifier that this skill gets to str and skill bonuses
 RULE_INT(Combat, FrenzyBonus, 0) //% Modifier to damage
 RULE_INT(Combat, BackstabBonus, 0) //% Modifier to damage
 RULE_BOOL(Combat, ProcTargetOnly, true) //true = procs will only affect our target, false = procs will affect all of our targets
