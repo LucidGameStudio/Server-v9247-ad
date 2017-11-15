@@ -252,7 +252,15 @@ void NPC::AddLootDrop(const EQEmu::ItemData *item2, ItemList* itemlist, int16 ch
 	item->aug_4 = aug4;
 	item->aug_5 = aug5;
 	item->aug_6 = aug6;
-	item->attuned = 0;
+	// This attunes item to the NPC so when a player loots they will receive the
+	//  standard "no drop" confirmation box. This is desirable because the item will
+	//  be attuned on loot rather than on equip, so the looter should be warned.
+	if (RuleB(Character, AttunableItemsAttuneOnLoot) && item2->Attuneable == 1) {
+		item->attuned = 1;
+	}
+	else {
+		item->attuned = 0;
+	}
 	item->min_level = minlevel;
 	item->max_level = maxlevel;
 	item->equip_slot = EQEmu::inventory::slotInvalid;
