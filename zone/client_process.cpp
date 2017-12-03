@@ -272,6 +272,7 @@ bool Client::Process() {
 				if (force_spawn_updates && mob != this) {
 
 					if (mob->is_distance_roamer) {
+						Log(Logs::General, Logs::Debug, "Updating distance roamer %s", mob->GetCleanName());
 						mob->SendPositionUpdateToClient(this);
 						continue;
 					}
@@ -1852,7 +1853,7 @@ void Client::DoStaminaHungerUpdate()
 	Log(Logs::General, Logs::Food, "Client::DoStaminaHungerUpdate() hunger_level: %i thirst_level: %i before loss",
 	    m_pp.hunger_level, m_pp.thirst_level);
 
-	if (zone->GetZoneID() != 151 && !GetGM()) {
+	if (zone->GetZoneID() != RuleI(Zone, HubZoneIDForNoFoodLoss) && zone->GetZoneID() != 151 && !GetGM()) {
 		int loss = RuleI(Character, FoodLossPerUpdate);
 		if (GetHorseId() != 0)
 			loss *= 3;
