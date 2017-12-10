@@ -156,7 +156,7 @@ RULE_BOOL(Character, UseOldBindWound, false) // Uses the original bind wound beh
 RULE_BOOL(Character, GrantHoTTOnCreate, false) // Grant Health of Target's Target leadership AA on character creation
 RULE_BOOL(Character, UseOldConSystem, false) // Grant Health of Target's Target leadership AA on character creation
 RULE_BOOL(Character, OPClientUpdateVisualDebug, false) // Shows a pulse and forward directional particle each time the client sends its position to server
-RULE_BOOL(Character, AttunableItemsAttuneOnLoot, false) // If enabled, attunable items will attune to your character when looted
+RULE_BOOL(Character, AttunableItemsAttuneOnLoot, false) // [AD Custom] If enabled, attunable items will attune to your character when looted
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(Mercs)
@@ -272,7 +272,7 @@ RULE_INT(Zone, MinOfflineTimeToReplenishments, 21600) // 21600 seconds is 6 Hour
 RULE_BOOL(Zone, UseZoneController, true) // Enables the ability to use persistent quest based zone controllers (zone_controller.pl/lua)
 RULE_BOOL(Zone, EnableZoneControllerGlobals, false) // Enables the ability to use quest globals with the zone controller NPC
 RULE_INT(Zone, GlobalLootMultiplier, 1) // Sets Global Loot drop multiplier for database based drops, useful for double, triple loot etc.
-RULE_INT(Zone, HubZoneIDForNoFoodLoss, 0) // Set hub zone ID so food/drink is not consumed. Default is 0 meaning disabled.
+RULE_INT(Zone, HubZoneIDForNoFoodLoss, 0) // [AD Custom] Set hub zone ID so food/drink is not consumed. Default is 0 meaning disabled.
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(Map)
@@ -510,7 +510,8 @@ RULE_INT(Combat, NPCAssistCapTimer, 6000) // Time in milliseconds a NPC will tak
 RULE_BOOL(Combat, UseRevampHandToHand, false) // use h2h revamped dmg/delays I believe this was implemented during SoF
 RULE_BOOL(Combat, ClassicMasterWu, false) // classic master wu uses a random special, modern doesn't
 RULE_INT(Combat, LevelToStopDamageCaps, 0) // 1 will effectively disable them, 20 should give basically same results as old incorrect system
-RULE_BOOL(Combat, AllowPetTanking, false) // If true, pets are considered for aggro over players in melee range
+RULE_BOOL(Combat, AllowPetTanking, false) // [AD Custom] If true, pets are considered for aggro over players in melee range
+RULE_INT(Combat, BonusMitigationPctWarPalShd, 0) // [AD Custom] If set higher than 0, Bonus mitigation % applied only to war/pal/shd
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(NPC)
@@ -551,7 +552,7 @@ RULE_INT(Aggro, IntAggroThreshold, 75) // Int <= this will aggro regardless of l
 RULE_BOOL(Aggro, AllowTickPulling, false) // tick pulling is an exploit in an NPC's call for help fixed sometime in 2006 on live
 RULE_BOOL(Aggro, UseLevelAggro, true) // Level 18+ and Undead will aggro regardless of level difference. (this will disabled Rule:IntAggroThreshold if set to true)
 RULE_INT(Aggro, ClientAggroCheckInterval, 6) // Interval in which clients actually check for aggro - in seconds
-RULE_BOOL(Combat, ApplyMeleeRangeAggroModToPets, false) // Enable if "AllowPetTanking" is enabled and you want pets to have tons of aggro
+RULE_BOOL(Combat, ApplyMeleeRangeAggroModToPets, false) // [AD Custom] Enable if "AllowPetTanking" is enabled and you want pets to have tons of aggro
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(TaskSystem)
