@@ -205,6 +205,10 @@ int Mob::GetTotalToHit(EQEmu::skills::SkillType skill, int chance_mod)
 		aabonuses.HitChanceEffect[skill] +
 		spellbonuses.HitChanceEffect[skill];
 
+	// Ranger archery accuracy is abnormally bad -- implementing a basic rule to increase as needed.
+	if (GetClass() == RANGER && skill == EQEmu::skills::SkillArchery)
+		hit_bonus += RuleI(Combat, BonusArcheryAccuracyRng);
+
 	accuracy = (accuracy * (100 + hit_bonus)) / 100;
 
 	// TODO: April 2003 added an archery/throwing PVP accuracy penalty while moving, should be in here some where,

@@ -512,6 +512,7 @@ RULE_BOOL(Combat, ClassicMasterWu, false) // classic master wu uses a random spe
 RULE_INT(Combat, LevelToStopDamageCaps, 0) // 1 will effectively disable them, 20 should give basically same results as old incorrect system
 RULE_BOOL(Combat, AllowPetTanking, false) // [AD Custom] If true, pets are considered for aggro over players in melee range
 RULE_INT(Combat, BonusMitigationPctWarPalShd, 0) // [AD Custom] If set higher than 0, Bonus mitigation % applied only to war/pal/shd
+RULE_INT(Combat, BonusArcheryAccuracyRng, 0) // [AD Custom] If set higher than 0, Bonus archery accuracy % applied only to rng
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(NPC)
