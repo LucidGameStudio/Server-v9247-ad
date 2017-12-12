@@ -356,6 +356,7 @@ int command_init(void)
 		command_add("setxp", "[value] - Set your or your player target's experience", 100, command_setxp) ||
 		command_add("showbonusstats", "[item|spell|all] Shows bonus stats for target from items or spells. Shows both by default.", 50, command_showbonusstats) ||
 		command_add("showbuffs", "- List buffs active on your target or you if no target", 50, command_showbuffs) ||
+		command_add("showkilltimes", "Shows progression kill times.", 200, command_showkilltimes) ||
 		command_add("shownumhits",  "Shows buffs numhits for yourself.",  0, command_shownumhits) ||
 		command_add("showskills", "- Show the values of your or your player target's skills", 50, command_showskills) ||
 		command_add("showspellslist", "Shows spell list of targeted NPC", 100, command_showspellslist) ||
@@ -10883,6 +10884,15 @@ void command_reloadtraps(Client *c, const Seperator *sep)
 {
 	entity_list.UpdateAllTraps(true, true);
 	c->Message(CC_Default, "Traps reloaded for %s.", zone->GetShortName());
+}
+
+void command_showkilltimes(Client *c, const Seperator *sep)
+{
+	// Shows last progression kill time per npc and players who were flagged
+	std::string query = "SELECT `last_kill_time`, `npc_name`, `flagged_players` FROM `ad_last_kill` ORDER BY `last_kill_time` DESC";
+	auto results = database.QueryDatabase(query);
+	for (auto row = results.begin(); row != results.end(); ++row)
+		c->Message(15, "[%s] %s {%s}", row[0], row[1], row[2]);
 }
 
 // All new code added to command.cpp should be BEFORE this comment line. Do no append code to this file below the BOTS code block.
