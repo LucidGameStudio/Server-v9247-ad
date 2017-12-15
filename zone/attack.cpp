@@ -4977,7 +4977,8 @@ void Mob::CommonOutgoingHitSuccess(Mob* defender, DamageHitInfo &hit, ExtraAttac
 			hit.damage_done = headshot;
 		}
 		else if (GetClass() == RANGER && GetLevel() > 50) { // no double dmg on headshot
-			if (defender->IsNPC() && !defender->IsMoving() && !defender->IsRooted()) {
+			// Disable root check on training dummies for accurate ranger bow dps parsing
+			if (defender->IsNPC() && !defender->IsMoving() && (!defender->IsRooted() || defender->GetNPCTypeID() == 77001 || defender->GetNPCTypeID() == 77002)) {
 				hit.damage_done *= 2;
 				Message_StringID(MT_CritMelee, BOW_DOUBLE_DAMAGE);
 			}
