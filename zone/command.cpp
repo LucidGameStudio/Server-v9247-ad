@@ -10908,6 +10908,7 @@ void command_dadhelp(Client *c, const Seperator *sep)
 	c->Message(18, " #dadflag list --> Show flags of your target");
 	c->Message(18, " #dadflag add --> Show flags that you can add to target");
 	c->Message(18, " #dadflag add [flag id] --> Add specified flag to target");
+	c->Message(18, " #dadflag remove [flag id] --> Remove specified flag from target");
 	c->Message(18, " #dadkilltimes --> Show last progression kill information");
 	//TODO remove flag command
 }
@@ -10923,6 +10924,7 @@ void command_dadflag(Client *c, const Seperator *sep)
 		c->Message(18, "--> list - Show flags of your target");
 		c->Message(18, "--> add --> Show flags that you can add to target");
 		c->Message(18, "--> add [flag id] --> Add specified flag to target");
+		c->Message(18, "--> remove [flag id] --> Remove specified flag from target");
 	}
 
 	// Show flags player target currently has
