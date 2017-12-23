@@ -176,6 +176,9 @@ int command_init(void)
 		command_add("corpsefix", "Attempts to bring corpses from underneath the ground within close proximity of the player", 0, command_corpsefix) ||
 		command_add("crashtest", "- Crash the zoneserver", 255, command_crashtest) ||
 		command_add("cvs", "- Summary of client versions currently online.", 200, command_cvs) ||
+		command_add("dadflag", "- Custom Addicted Dads flag commands.", 200, command_dadflag) ||
+		command_add("dadhelp", "- Display custom Addicted Dads GM commands.", 200, command_dadhelp) ||
+		command_add("dadkilltimes", "Shows progression kill times.", 200, command_dadkilltimes) ||
 		command_add("damage", "[amount] - Damage your target", 100, command_damage) ||
 		command_add("date", "[yyyy] [mm] [dd] [HH] [MM] - Set EQ time", 90, command_date) ||
 		command_add("dbspawn2", "[spawngroup] [respawn] [variance] - Spawn an NPC from a predefined row in the spawn2 table", 100, command_dbspawn2) ||
@@ -356,7 +359,6 @@ int command_init(void)
 		command_add("setxp", "[value] - Set your or your player target's experience", 100, command_setxp) ||
 		command_add("showbonusstats", "[item|spell|all] Shows bonus stats for target from items or spells. Shows both by default.", 50, command_showbonusstats) ||
 		command_add("showbuffs", "- List buffs active on your target or you if no target", 50, command_showbuffs) ||
-		command_add("showkilltimes", "Shows progression kill times.", 200, command_showkilltimes) ||
 		command_add("shownumhits",  "Shows buffs numhits for yourself.",  0, command_shownumhits) ||
 		command_add("showskills", "- Show the values of your or your player target's skills", 50, command_showskills) ||
 		command_add("showspellslist", "Shows spell list of targeted NPC", 100, command_showspellslist) ||
@@ -10886,13 +10888,124 @@ void command_reloadtraps(Client *c, const Seperator *sep)
 	c->Message(CC_Default, "Traps reloaded for %s.", zone->GetShortName());
 }
 
-void command_showkilltimes(Client *c, const Seperator *sep)
+void command_dadkilltimes(Client *c, const Seperator *sep)
 {
 	// Shows last progression kill time per npc and players who were flagged
 	std::string query = "SELECT `last_kill_time`, `npc_name`, `flagged_players` FROM `ad_last_kill` ORDER BY `last_kill_time` DESC";
+
 	auto results = database.QueryDatabase(query);
+
+	c->Message(14, "[-- LAST KILL TIMES --]");
+
 	for (auto row = results.begin(); row != results.end(); ++row)
 		c->Message(15, "[%s] %s {%s}", row[0], row[1], row[2]);
+}
+
+void command_dadhelp(Client *c, const Seperator *sep)
+{
+	// AD custom help menu for GMs
+	c->Message(14, "[-- ADDICTED DADS GM HELP MENU --]");
+	c->Message(18, " #dadflag list --> Show flags of your target");
+	c->Message(18, " #dadflag add --> Show flags that you can add to target");
+	c->Message(18, " #dadflag add [flag id] --> Add specified flag to target");
+	c->Message(18, " #dadkilltimes --> Show last progression kill information");
+	//TODO remove flag command
+}
+
+void command_dadflag(Client *c, const Seperator *sep)
+{
+	Mob *t = c->GetTarget();
+
+	// Help menu
+	if (sep->arg[1][0] == '\0' || !strcasecmp(sep->arg[1], "help"))
+	{
+		c->Message(14, "Syntax: #dadflag [list|add|remove]");
+		c->Message(18, "--> list - Show flags of your target");
+		c->Message(18, "--> add --> Show flags that you can add to target");
+		c->Message(18, "--> add [flag id] --> Add specified flag to target");
+	}
+
+	// Show flags player target currently has
+	if (!strcasecmp(sep->arg[1], "list"))
+	{
+		if (t && t->IsClient())
+		{
+			std::string query = StringFormat("SELECT `id`, `npc_name`, `progression_tier`, `progression_access` "
+				"FROM `ad_progression_npcs` "
+				"WHERE `npc_name` IN ("
+				"SELECT `name` FROM `quest_globals` WHERE `zoneid` = 0 AND `charid` = %i"
+				")", t->CastToClient()->CharacterID());
+
+			auto results = database.QueryDatabase(query);
+
+			c->Message(14, "[-- CURRENT FLAGS -- Character: %s --] ", t->GetName());
+
+			for (auto row = results.begin(); row != results.end(); ++row)
+				c->Message(15, "{ %s } - [ %s - Tier %s - %s ]", row[0], row[1], row[2], row[3]);
+		}
+	}
+
+	// Show flags that can be added to player target
+	if (!strcasecmp(sep->arg[1], "add") && sep->arg[2][0] == '\0')
+	{
+		if (t && t->IsClient())
+		{
+			std::string query = StringFormat("SELECT `id`, `npc_name`, `progression_tier`, `progression_access` "
+				"FROM `ad_progression_npcs` "
+				"WHERE `npc_name` NOT IN ("
+				"SELECT `name` FROM `quest_globals` WHERE `zoneid` = 0 AND `charid` = %i"
+				")", t->CastToClient()->CharacterID());
+
+			auto results = database.QueryDatabase(query);
+
+			c->Message(14, "[-- AVAILABLE FLAGS -- Character: %s --] ", t->GetName());
+
+			for (auto row = results.begin(); row != results.end(); ++row)
+				c->Message(15, "{ %s } - [ %s - Tier %s - %s ]", row[0], row[1], row[2], row[3]);
+		}
+	}
+
+	// Add flag to player target
+	if (!strcasecmp(sep->arg[1], "add") && sep->arg[2][0] != '\0')
+	{
+		if (t && t->IsClient())
+		{
+			uint32 flagId = atoi(sep->arg[2]);
+
+			std::string query = StringFormat("INSERT INTO `quest_globals` (`charid`, `npcid`, `zoneid`, `name`, `value`, `expdate`) "
+				"VALUES(%i, 0, 0, ("
+				"SELECT `npc_name` FROM `ad_progression_npcs` WHERE `id` = %i"
+				"), 1, NULL)", t->CastToClient()->CharacterID(), flagId);
+
+			auto results = database.QueryDatabase(query);
+
+			if (results.Success())
+				c->Message(5, "[-- ADD FLAG { %s } -- Character: %s --] SUCCESS", t->GetName(), std::to_string(flagId).c_str());
+			else
+				c->Message(5, "[-- ADD FLAG { %s } -- Character: %s --] FAILURE", t->GetName(), std::to_string(flagId).c_str());
+		}
+	}
+
+	// Remove flag to player target
+	if (!strcasecmp(sep->arg[1], "remove") && sep->arg[2][0] != '\0')
+	{
+		if (t && t->IsClient())
+		{
+			uint32 flagId = atoi(sep->arg[2]);
+
+			std::string query = StringFormat("DELETE FROM `quest_globals` "
+				"WHERE `charid` = %i AND name = ("
+				"SELECT `npc_name` FROM `ad_progression_npcs` WHERE `id` = %i"
+				")", t->CastToClient()->CharacterID(), flagId);
+
+			auto results = database.QueryDatabase(query);
+
+			if (results.Success())
+				c->Message(5, "[-- REMOVE FLAG { %s } -- Character: %s --] SUCCESS", t->GetName(), std::to_string(flagId).c_str());
+			else
+				c->Message(5, "[-- REMOVE FLAG { %s } -- Character: %s --] FAILURE", t->GetName(), std::to_string(flagId).c_str());
+		}
+	}
 }
 
 // All new code added to command.cpp should be BEFORE this comment line. Do no append code to this file below the BOTS code block.
