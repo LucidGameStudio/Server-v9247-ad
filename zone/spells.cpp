@@ -4578,13 +4578,23 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 		target_resist = 0;
 	}
 
+	// JULY 24, 2002 changes
+	int level = GetLevel();
+	if (IsPetOwnerClient() && caster->IsNPC() && !caster->IsPetOwnerClient()) {
+		auto owner = GetOwner();
+		if (owner != nullptr) {
+			target_resist = std::max(target_resist, owner->GetResist(resist_type));
+			level = owner->GetLevel();
+		}
+	}
+
 	//Setup our base resist chance.
 	int resist_chance = 0;
 	int level_mod = 0;
 
 	//Adjust our resist chance based on level modifiers
 	uint8 caster_level = level_override > 0 ? level_override : caster->GetLevel();
-	int temp_level_diff = GetLevel() - caster_level;
+	int temp_level_diff = level - caster_level;
 
 	//Physical Resists are calclated using their own formula derived from extensive parsing.
 	if (resist_type == RESIST_PHYSICAL) {
@@ -4593,7 +4603,7 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 
 	else {
 
-		if(IsNPC() && GetLevel() >= RuleI(Casting,ResistFalloff))
+		if(IsNPC() && level >= RuleI(Casting,ResistFalloff))
 		{
 			int a = (RuleI(Casting,ResistFalloff)-1) - caster_level;
 			if(a > 0)
@@ -4606,7 +4616,7 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 			}
 		}
 
-		if(IsClient() && GetLevel() >= 21 && temp_level_diff > 15)
+		if(IsClient() && level >= 21 && temp_level_diff > 15)
 		{
 			temp_level_diff = 15;
 		}
@@ -4622,16 +4632,16 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 			level_mod = -level_mod;
 		}
 
-		if(IsNPC() && (caster_level - GetLevel()) < -20)
+		if(IsNPC() && (caster_level - level) < -20)
 		{
 			level_mod = 1000;
 		}
 
 		//Even more level stuff this time dealing with damage spells
-		if(IsNPC() && IsDamageSpell(spell_id) && GetLevel() >= 17)
+		if(IsNPC() && IsDamageSpell(spell_id) && level >= 17)
 		{
 			int level_diff;
-			if(GetLevel() >= RuleI(Casting,ResistFalloff))
+			if(level >= RuleI(Casting,ResistFalloff))
 			{
 				level_diff = (RuleI(Casting,ResistFalloff)-1) - caster_level;
 				if(level_diff < 0)
@@ -4641,7 +4651,7 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 			}
 			else
 			{
-				level_diff = GetLevel() - caster_level;
+				level_diff = level - caster_level;
 			}
 			level_mod += (2 * level_diff);
 		}
@@ -4752,17 +4762,17 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 
 			if(IsNPC())
 			{
-				if(GetLevel() > caster_level && GetLevel() >= 17 && caster_level <= 50)
+				if(level > caster_level && level >= 17 && caster_level <= 50)
 				{
 					partial_modifier += 5;
 				}
 
-				if(GetLevel() >= 30 && caster_level < 50)
+				if(level >= 30 && caster_level < 50)
 				{
 					partial_modifier += (caster_level - 25);
 				}
 
-				if(GetLevel() < 15)
+				if(level < 15)
 				{
 					partial_modifier -= 5;
 				}
@@ -4770,9 +4780,9 @@ float Mob::ResistSpell(uint8 resist_type, uint16 spell_id, Mob *caster, bool use
 
 			if(caster->IsNPC())
 			{
-				if((GetLevel() - caster_level) >= 20)
+				if((level - caster_level) >= 20)
 				{
-					partial_modifier += (GetLevel() - caster_level) * 1.5;
+					partial_modifier += (level - caster_level) * 1.5;
 				}
 			}
 
