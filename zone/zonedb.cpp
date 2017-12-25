@@ -3212,7 +3212,7 @@ void ZoneDatabase::SavePetInfo(Client *client)
 
 		query = StringFormat("INSERT INTO `character_pet_info` "
 				"(`char_id`, `pet`, `petname`, `petpower`, `spell_id`, `hp`, `mana`, `size`, `pettank`) "
-				"VALUES (%u, %u, '%s', %i, %u, %u, %u, %f, %u) "
+				"VALUES (%u, %u, '%s', %i, %u, %u, %u, %f, %d) "
 				"ON DUPLICATE KEY UPDATE `petname` = '%s', `petpower` = %i, `spell_id` = %u, "
 				"`hp` = %u, `mana` = %u, `size` = %f, `pettank` = %d",
 				client->CharacterID(), pet, petinfo->Name, petinfo->petpower, petinfo->SpellID,
