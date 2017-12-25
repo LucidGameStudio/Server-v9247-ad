@@ -810,6 +810,8 @@ public:
 	void SetPetType(PetType p) { typeofpet = p; }
 	inline int16 GetPetPower() const { return (petpower < 0) ? 0 : petpower; }
 	void SetPetPower(int16 p) { if (p < 0) petpower = 0; else petpower = p; }
+	inline bool IsPetTank() const { return pettank; }
+	void SetPetTank(bool value) { pettank = value; }
 	bool IsFamiliar() const { return(typeofpet == petFamiliar); }
 	bool IsAnimation() const { return(typeofpet == petAnimation); }
 	bool IsCharmed() const { return(typeofpet == petCharmed); }
@@ -1202,6 +1204,7 @@ protected:
 	uint16 ownerid;
 	PetType typeofpet;
 	int16 petpower;
+	bool pettank;
 	uint32 follow;
 	uint32 follow_dist;
 	bool no_target_hotkey;

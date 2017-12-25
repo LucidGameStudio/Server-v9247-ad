@@ -371,8 +371,8 @@ Mob *HateList::GetEntWithMostHateOnList(Mob *center, Mob *skip)
 					aggro_mod += RuleI(Aggro, SittingAggroMod);
 				}
 #else
-			if (cur->entity_on_hatelist->IsClient() || (RuleB(Combat, AllowPetTanking) == true && cur->entity_on_hatelist->IsPet())){
-
+			if (cur->entity_on_hatelist->IsClient() || (RuleB(Combat, AllowPetTanking) == true && cur->entity_on_hatelist->IsPet() && cur->entity_on_hatelist->IsPetTank())){
+				
 				if (cur->entity_on_hatelist->CastToClient()->IsSitting()){
 					aggro_mod += RuleI(Aggro, SittingAggroMod);
 				}

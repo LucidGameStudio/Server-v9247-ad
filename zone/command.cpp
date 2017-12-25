@@ -301,6 +301,7 @@ int command_init(void)
 		command_add("permagender", "[gendernum] - Change your or your player target's gender (zone to take effect)", 80, command_permagender) ||
 		command_add("permarace", "[racenum] - Change your or your player target's race (zone to take effect)", 80, command_permarace) ||
 		command_add("petitioninfo", "[petition number] - Get info about a petition", 20, command_petitioninfo) ||
+		command_add("pettank", "Toggle pet tanking", 0, command_pettank) ||
 		command_add("pf", "- Display additional mob coordinate and wandering data", 0, command_pf) ||
 		command_add("picklock",  "Analog for ldon pick lock for the newer clients since we still don't have it working.",  0, command_picklock) ||
 
@@ -10886,6 +10887,27 @@ void command_reloadtraps(Client *c, const Seperator *sep)
 {
 	entity_list.UpdateAllTraps(true, true);
 	c->Message(CC_Default, "Traps reloaded for %s.", zone->GetShortName());
+}
+
+void command_pettank(Client *c, const Seperator *sep)
+{
+	if (c->HasPet())
+	{
+		if (c->GetPet()->IsPetTank())
+		{
+			c->GetPet()->SetPetTank(false);
+			c->Message(0, "%s tells you, 'No longer tanking, Master.'", c->GetPet()->GetCleanName());
+		}
+		else
+		{
+			c->GetPet()->SetPetTank(true);
+			c->Message(0, "%s tells you, 'Ready to tank, Master.'", c->GetPet()->GetCleanName());
+		}
+	}
+	else
+	{
+		c->Message(0, "You do not have a pet.");
+	}
 }
 
 void command_dadkilltimes(Client *c, const Seperator *sep)

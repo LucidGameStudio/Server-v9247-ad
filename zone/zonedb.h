@@ -141,6 +141,7 @@ struct AuraRecord {
 struct PetInfo {
 	uint16	SpellID;
 	int16	petpower;
+	bool	pettank;
 	uint32	HP;
 	uint32	Mana;
 	float	size;

@@ -653,6 +653,7 @@ bool Client::Save(uint8 iCommitNow) {
 		pet->GetPetState(m_petinfo.Buffs, m_petinfo.Items, m_petinfo.Name);
 		m_petinfo.petpower = pet->GetPetPower();
 		m_petinfo.size = pet->GetSize();
+		m_petinfo.pettank = pet->IsPetTank();
 	} else {
 		memset(&m_petinfo, 0, sizeof(struct PetInfo));
 	}
