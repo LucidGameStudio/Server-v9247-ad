@@ -5820,6 +5820,8 @@ void Client::SuspendMinion()
 
 			CurrentPet->SetMana(m_suspendedminion.Mana);
 
+			CurrentPet->SetPetTank(m_suspendedminion.pettank);
+
 			Message_StringID(clientMessageTell, SUSPEND_MINION_UNSUSPEND, CurrentPet->GetCleanName());
 
 			memset(&m_suspendedminion, 0, sizeof(struct PetInfo));
@@ -5867,11 +5869,10 @@ void Client::SuspendMinion()
 			else
 			{
 				m_suspendedminion.SpellID = SpellID;
-
-				m_suspendedminion.HP = CurrentPet->GetHP();;
-
+				m_suspendedminion.HP = CurrentPet->GetHP();
 				m_suspendedminion.Mana = CurrentPet->GetMana();
 				m_suspendedminion.petpower = CurrentPet->GetPetPower();
+				m_suspendedminion.pettank = CurrentPet->IsPetTank();
 				m_suspendedminion.size = CurrentPet->GetSize();
 
 				if(AALevel >= 2)

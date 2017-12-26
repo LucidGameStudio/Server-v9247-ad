@@ -468,7 +468,7 @@ Pet::Pet(NPCType *type_data, Mob *owner, PetType type, uint16 spell_id, int16 po
 	GiveNPCTypeData(type_data);
 	typeofpet = type;
 	petpower = power;
-	pettank = true;
+	pettank = true; // This should only really matter if new pet
 	SetOwnerID(owner->GetID());
 	SetPetSpellID(spell_id);
 	taunting = true;

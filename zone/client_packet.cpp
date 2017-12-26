@@ -1679,6 +1679,7 @@ void Client::Handle_Connect_OP_ZoneEntry(const EQApplicationPacket *app)
 			pet->CalcBonuses();
 			pet->SetHP(m_petinfo.HP);
 			pet->SetMana(m_petinfo.Mana);
+			pet->SetPetTank(m_petinfo.pettank);
 		}
 		m_petinfo.SpellID = 0;
 	}
