@@ -458,6 +458,16 @@ void Mob::MakePoweredPet(uint16 spell_id, const char* pettype, int16 petpower,
 		else
 			npc->Kill(); //On live casts spell 892 Unsummon (Kayen - Too limiting to use that for emu since pet can have more than 20k HP)
 	}
+
+	// If this is omitted, then on brand new pets the pettank boolean is uninitialized so it always returns true.
+	if (record.temporary == true)
+	{
+		npc->SetPetTank(false);
+	}
+	else
+	{
+		npc->SetPetTank(true);
+	}
 }
 /* This is why the pets ghost - pets were being spawned too far away from its npc owner and some
 into walls or objects (+10), this sometimes creates the "ghost" effect. I changed to +2 (as close as I
@@ -468,7 +478,6 @@ Pet::Pet(NPCType *type_data, Mob *owner, PetType type, uint16 spell_id, int16 po
 	GiveNPCTypeData(type_data);
 	typeofpet = type;
 	petpower = power;
-	pettank = true; // This should only really matter if new pet
 	SetOwnerID(owner->GetID());
 	SetPetSpellID(spell_id);
 	taunting = true;
