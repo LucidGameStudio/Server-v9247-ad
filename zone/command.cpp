@@ -10896,12 +10896,12 @@ void command_pettank(Client *c, const Seperator *sep)
 		if (c->GetPet()->IsPetTank())
 		{
 			c->GetPet()->SetPetTank(false);
-			c->Message(0, "%s tells you, 'No longer tanking, Master.'", c->GetPet()->GetCleanName());
+			c->Message(MT_PetResponse, "%s tells you, 'No longer tanking, Master.'", c->GetPet()->GetCleanName());
 		}
 		else
 		{
 			c->GetPet()->SetPetTank(true);
-			c->Message(0, "%s tells you, 'Ready to tank, Master.'", c->GetPet()->GetCleanName());
+			c->Message(MT_PetResponse, "%s tells you, 'Ready to tank, Master.'", c->GetPet()->GetCleanName());
 		}
 	}
 	else
