@@ -89,11 +89,19 @@ void Mob::TemporaryPets(uint16 spell_id, Mob *targ, const char *name_override, u
 		return;
 	}
 
-	if (name_override != nullptr) {
+	if (name_override != nullptr && record.petnaming != 5) {
 		//we have to make a custom NPC type for this name change
 		made_npc = new NPCType;
 		memcpy(made_npc, npc_type, sizeof(NPCType));
 		strcpy(made_npc->name, name_override);
+		npc_type = made_npc;
+	}
+	else if (name_override != nullptr && record.petnaming == 5)
+	{
+		made_npc = new NPCType;
+		memcpy(made_npc, npc_type, sizeof(NPCType));
+		strcpy(made_npc->name, this->GetName());
+		strcat(made_npc->name, "`s_ward");
 		npc_type = made_npc;
 	}
 
