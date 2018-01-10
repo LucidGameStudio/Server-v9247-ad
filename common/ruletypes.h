@@ -199,6 +199,7 @@ RULE_CATEGORY(Pets)
 RULE_REAL(Pets, AttackCommandRange, 150)
 RULE_BOOL(Pets, UnTargetableSwarmPet, false)
 RULE_REAL(Pets, PetPowerLevelCap, 10) // Max number of levels your pet can go up with pet power
+RULE_BOOL(Pets, CanTakeNoDrop, false) // Can everyone trade nodrop gear to pets
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(GM)
@@ -510,6 +511,7 @@ RULE_INT(Combat, NPCAssistCapTimer, 6000) // Time in milliseconds a NPC will tak
 RULE_BOOL(Combat, UseRevampHandToHand, false) // use h2h revamped dmg/delays I believe this was implemented during SoF
 RULE_BOOL(Combat, ClassicMasterWu, false) // classic master wu uses a random special, modern doesn't
 RULE_INT(Combat, LevelToStopDamageCaps, 0) // 1 will effectively disable them, 20 should give basically same results as old incorrect system
+RULE_BOOL(Combat, ClassicNPCBackstab, false) // true disables npc facestab - npcs get normal attack if not behind
 RULE_BOOL(Combat, AllowPetTanking, false) // [AD Custom] If true, pets are considered for aggro over players in melee range
 RULE_INT(Combat, BonusMitigationPctWarPalShd, 0) // [AD Custom] If set higher than 0, Bonus mitigation % applied only to war/pal/shd
 RULE_INT(Combat, BonusArcheryAccuracyRng, 0) // [AD Custom] If set higher than 0, Bonus archery accuracy % applied only to rng
