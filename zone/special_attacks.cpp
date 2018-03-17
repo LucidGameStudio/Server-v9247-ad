@@ -605,9 +605,19 @@ void Mob::RogueBackstab(Mob* other, bool min_damage, int ReuseTime)
 	}
 
 	int base_damage = GetBaseSkillDamage(EQEmu::skills::SkillBackstab, other);
+
+	// For clients we want to boost backstab damage
+	// why is min_damage passed in as a bool and never used? makes no sense
+	int minimum_damage = 0;
+	if (IsClient())
+	{
+		base_damage += base_damage * RuleI(Combat, BackstabBonus) / 100;
+		minimum_damage = ceil(base_damage / 2);
+	}
+
 	hate = base_damage;
 
-	DoSpecialAttackDamage(other, EQEmu::skills::SkillBackstab, base_damage, 0, hate, ReuseTime);
+	DoSpecialAttackDamage(other, EQEmu::skills::SkillBackstab, base_damage, minimum_damage, hate, ReuseTime);
 	DoAnim(anim1HPiercing, 0, false);
 }
 

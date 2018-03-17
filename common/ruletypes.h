@@ -515,6 +515,7 @@ RULE_BOOL(Combat, ClassicNPCBackstab, false) // true disables npc facestab - npc
 RULE_BOOL(Combat, AllowPetTanking, false) // [AD Custom] If true, pets are considered for aggro over players in melee range
 RULE_INT(Combat, BonusMitigationPctWarPalShd, 0) // [AD Custom] If set higher than 0, Bonus mitigation % applied only to war/pal/shd
 RULE_INT(Combat, BonusArcheryAccuracyRng, 0) // [AD Custom] If set higher than 0, Bonus archery accuracy % applied only to rng
+RULE_INT(Combat, BonusBackstabAccuracyRog, 0) // [AD Custom] If set higher than 0, Bonus backstab accuracy % applied only to rog
 RULE_CATEGORY_END()
 
 RULE_CATEGORY(NPC)
