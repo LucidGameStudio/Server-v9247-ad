@@ -2173,3 +2173,30 @@ int Database::GetInstanceID(uint32 char_id, uint32 zone_id) {
 
 	return 0;
 }
+
+std::vector<uint32> Database::GetAccountIDsByIPHistory(const char* ip)
+{
+	std::string query = StringFormat("SELECT accid FROM account_ip WHERE ip = '%s'", ip);
+	auto results = QueryDatabase(query);
+
+	std::vector<uint32> accountIDs;
+
+	if (results.Success() && results.RowCount() > 0)
+	{
+		for (auto row = results.begin(); row != results.end(); ++row)
+		{
+			accountIDs.push_back(atoi(row[0]));
+		}
+	}
+
+	return accountIDs;
+}
+
+void Database::LogBoxingAlert(const char* ip, std::string online_account_ids)
+{
+	std::string query = StringFormat("INSERT INTO ad_boxing_alerts_log (ip, account_ids, account_names, char_names) "
+		"VALUES ( '%s', '%s', "
+		"(SELECT GROUP_CONCAT(name) FROM account WHERE id IN(%s)), "
+		"(SELECT GROUP_CONCAT(charname) FROM account WHERE id IN(%s)))", ip, online_account_ids.c_str(), online_account_ids.c_str(), online_account_ids.c_str());
+	auto results = QueryDatabase(query);
+}

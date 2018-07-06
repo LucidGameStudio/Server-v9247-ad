@@ -1468,3 +1468,46 @@ void ClientList::OnTick(EQ::Timer *t)
 
 	web_interface.SendEvent(out);
 }
+
+// First attempt at logging potential multi boxing setups that are bypassing rule by using alternate IPs.
+void ClientList::BoxingCheck(uint32 iIP, uint32 iAccountID)
+{
+	LinkedListIterator<ClientListEntry*> iterator(clientlist);
+
+	// Check database and get count of all account IDs that have used this IP at some point in time
+	std::vector<uint32> dbAccountIDs = database.GetAccountIDsByIPHistory(long2ip(iIP).c_str());;
+
+	int onlineCount = 0;
+	std::string onlineAccountIDs;
+
+	// Check if your IP has ever logged in more unique accounts than is defined by this rule
+	if (dbAccountIDs.size() > RuleI(World, MaxClientsPerIP))
+	{
+		iterator.Reset();
+		while (iterator.MoreElements())
+		{
+			// Check against all logged on clients
+			if (iterator.GetData()->Online() >= CLE_Status_Zoning)
+			{
+				// Build string of all account IDs in the array that are online
+				if (std::find(dbAccountIDs.begin(), dbAccountIDs.end(), iterator.GetData()->AccountID()) != dbAccountIDs.end())
+				{
+					onlineAccountIDs.append(std::to_string(iterator.GetData()->AccountID()));
+					onlineAccountIDs.append(",");
+					onlineCount++;
+				}
+			}
+			iterator.Advance();
+		}
+
+		// Add client who triggered this check
+		onlineAccountIDs.append(std::to_string(iAccountID));
+		onlineCount++;
+
+		// Log alert if more are online than is allowed
+		if (onlineCount > RuleI(World, MaxClientsPerIP))
+		{
+			database.LogBoxingAlert(long2ip(iIP).c_str(), onlineAccountIDs);
+		}
+	}
+}

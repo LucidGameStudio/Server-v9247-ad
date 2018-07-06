@@ -740,6 +740,7 @@ bool Client::HandleEnterWorldPacket(const EQApplicationPacket *app) {
 
 	if (RuleB(World, EnableIPExemptions) || RuleI(World, MaxClientsPerIP) >= 0) {
 		client_list.GetCLEIP(this->GetIP()); //Check current CLE Entry IPs against incoming connection
+		client_list.BoxingCheck(this->GetIP(), this->GetAccountID());
 	}
 
 	EnterWorld_Struct *ew=(EnterWorld_Struct *)app->pBuffer;
