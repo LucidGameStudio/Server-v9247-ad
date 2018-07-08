@@ -1476,7 +1476,8 @@ void ClientList::OnTick(EQ::Timer *t)
 // 2. Using those account IDs -> Get all unique IPs
 // 3. Using those unique IPs -> Get all unique account IDs
 //    a. At this point we should have a list of all accounts you have ever used from any IP
-// 4. Log account IDs, account names, and character names for manual human investigation
+// 4. Check unique account IDs against all current online accounts
+// 5. If more than 2 found -> Log account IDs, account names, and character names for manual human investigation
 //
 void ClientList::BoxingCheck(uint32 iIP, uint32 iAccountID)
 {
