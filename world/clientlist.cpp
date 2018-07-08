@@ -1469,19 +1469,43 @@ void ClientList::OnTick(EQ::Timer *t)
 	web_interface.SendEvent(out);
 }
 
-// First attempt at logging potential multi boxing setups that are bypassing rule by using alternate IPs.
+// Log potential multi boxing setups that are bypassing rule by using alternate IPs.
+//
+// Here's the logic behind this:
+// 1. Get all account IDs that have ever used client IP
+// 2. Using those account IDs -> Get all unique IPs
+// 3. Using those unique IPs -> Get all unique account IDs
+//    a. At this point we should have a list of all accounts you have ever used from any IP
+// 4. Log account IDs, account names, and character names for manual human investigation
+//
 void ClientList::BoxingCheck(uint32 iIP, uint32 iAccountID)
 {
 	LinkedListIterator<ClientListEntry*> iterator(clientlist);
 
-	// Check database and get count of all account IDs that have used this IP at some point in time
-	std::vector<uint32> dbAccountIDs = database.GetAccountIDsByIPHistory(long2ip(iIP).c_str());;
+	// Check database and all account IDs that have used this IP at some point in time
+	std::vector<uint32> accountIDs = database.GetAccountIDsByIPHistory(long2ip(iIP).c_str());
+
+	// Get IP history for each account ID and build set
+	std::set<std::string> uniqueIPs;
+	for (std::vector<uint32>::iterator aID = accountIDs.begin(); aID != accountIDs.end(); ++aID)
+	{
+		std::vector<std::string> tempIPs = database.GetIPHistoryByAccountID(*aID);
+		uniqueIPs.insert(tempIPs.begin(), tempIPs.end());
+	}
+	
+	// Get account IDs for each IP and build set
+	std::set<uint32> uniqueAccountIDs;
+	for (std::set<std::string>::iterator uIP = uniqueIPs.begin(); uIP != uniqueIPs.end(); ++uIP)
+	{
+		std::vector<uint32> tempIDs = database.GetAccountIDsByIPHistory((*uIP).c_str());
+		uniqueAccountIDs.insert(tempIDs.begin(), tempIDs.end());
+	}
 
 	int onlineCount = 0;
 	std::string onlineAccountIDs;
 
-	// Check if your IP has ever logged in more unique accounts than is defined by this rule
-	if (dbAccountIDs.size() > RuleI(World, MaxClientsPerIP))
+	// Check if you are associated with more unique accounts than is defined by this rule
+	if (uniqueAccountIDs.size() > RuleI(World, MaxClientsPerIP))
 	{
 		iterator.Reset();
 		while (iterator.MoreElements())
@@ -1490,7 +1514,7 @@ void ClientList::BoxingCheck(uint32 iIP, uint32 iAccountID)
 			if (iterator.GetData()->Online() >= CLE_Status_Zoning)
 			{
 				// Build string of all account IDs in the array that are online
-				if (std::find(dbAccountIDs.begin(), dbAccountIDs.end(), iterator.GetData()->AccountID()) != dbAccountIDs.end())
+				if (std::find(uniqueAccountIDs.begin(), uniqueAccountIDs.end(), iterator.GetData()->AccountID()) != uniqueAccountIDs.end())
 				{
 					onlineAccountIDs.append(std::to_string(iterator.GetData()->AccountID()));
 					onlineAccountIDs.append(",");

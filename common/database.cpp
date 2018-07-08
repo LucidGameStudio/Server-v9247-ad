@@ -2192,6 +2192,24 @@ std::vector<uint32> Database::GetAccountIDsByIPHistory(const char* ip)
 	return accountIDs;
 }
 
+std::vector<std::string> Database::GetIPHistoryByAccountID(uint32 account_id)
+{
+	std::string query = StringFormat("SELECT ip FROM account_ip WHERE accid = '%i'", account_id);
+	auto results = QueryDatabase(query);
+
+	std::vector<std::string> IPs;
+
+	if (results.Success() && results.RowCount() > 0)
+	{
+		for (auto row = results.begin(); row != results.end(); ++row)
+		{
+			IPs.push_back(row[0]);
+		}
+	}
+
+	return IPs;
+}
+
 void Database::LogBoxingAlert(const char* ip, std::string online_account_ids)
 {
 	std::string query = StringFormat("INSERT INTO ad_boxing_alerts_log (ip, account_ids, account_names, char_names) "

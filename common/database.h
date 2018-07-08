@@ -196,6 +196,7 @@ public:
 	int		GetInstanceID(uint32 char_id, uint32 zone_id);
 
 	std::vector<uint32> GetAccountIDsByIPHistory(const char* ip);
+	std::vector<std::string> GetIPHistoryByAccountID(uint32 account_id);
 	void LogBoxingAlert(const char* ip, std::string online_account_ids);
 
 	/* Groups */
