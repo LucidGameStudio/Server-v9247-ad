@@ -179,6 +179,7 @@ int command_init(void)
 		command_add("dadflag", "- Custom Addicted Dads flag commands.", 200, command_dadflag) ||
 		command_add("dadhelp", "- Display custom Addicted Dads GM commands.", 200, command_dadhelp) ||
 		command_add("dadkilltimes", "Shows progression kill times.", 200, command_dadkilltimes) ||
+		command_add("dadlogs", "Shows custom Addicted Dads logs.", 200, command_dadlogs) ||
 		command_add("damage", "[amount] - Damage your target", 100, command_damage) ||
 		command_add("date", "[yyyy] [mm] [dd] [HH] [MM] - Set EQ time", 90, command_date) ||
 		command_add("dbspawn2", "[spawngroup] [respawn] [variance] - Spawn an NPC from a predefined row in the spawn2 table", 100, command_dbspawn2) ||
@@ -10932,7 +10933,8 @@ void command_dadhelp(Client *c, const Seperator *sep)
 	c->Message(18, " #dadflag add [flag id] --> Add specified flag to target");
 	c->Message(18, " #dadflag remove [flag id] --> Remove specified flag from target");
 	c->Message(18, " #dadkilltimes --> Show last progression kill information");
-	//TODO remove flag command
+	c->Message(18, " #dadlogs boxing --> Show last 15 boxing alert logs");
+	c->Message(18, " #dadlogs boxing [num] --> Show last X boxing alert logs");
 }
 
 void command_dadflag(Client *c, const Seperator *sep)
@@ -10943,10 +10945,10 @@ void command_dadflag(Client *c, const Seperator *sep)
 	if (sep->arg[1][0] == '\0' || !strcasecmp(sep->arg[1], "help"))
 	{
 		c->Message(14, "Syntax: #dadflag [list|add|remove]");
-		c->Message(18, "--> list - Show flags of your target");
-		c->Message(18, "--> add --> Show flags that you can add to target");
-		c->Message(18, "--> add [flag id] --> Add specified flag to target");
-		c->Message(18, "--> remove [flag id] --> Remove specified flag from target");
+		c->Message(18, "> list --> Show flags of your target");
+		c->Message(18, "> add --> Show flags that you can add to target");
+		c->Message(18, "> add [flag id] --> Add specified flag to target");
+		c->Message(18, "> remove [flag id] --> Remove specified flag from target");
 	}
 
 	// Show flags player target currently has
@@ -11030,6 +11032,51 @@ void command_dadflag(Client *c, const Seperator *sep)
 				c->Message(5, "[-- REMOVE FLAG { %s } -- Character: %s --] FAILURE", t->GetName(), std::to_string(flagId).c_str());
 		}
 	}
+}
+
+void command_dadlogs(Client *c, const Seperator *sep)
+{
+	// Help menu
+	if (sep->arg[1][0] == '\0' || !strcasecmp(sep->arg[1], "help"))
+	{
+		c->Message(14, "Syntax: #dadlogs [boxing]");
+		c->Message(18, "> boxing --> Show last 15 boxing alert logs");
+		c->Message(18, "> boxing [num] --> Show last X boxing alert logs");
+		// The idea is to add more helpful logs later
+	}
+
+	// Show last 15 boxing alert log entries
+	if (!strcasecmp(sep->arg[1], "boxing") && sep->arg[2][0] == '\0')
+	{
+		std::string query = "SELECT * FROM "
+			"(SELECT timerecorded, account_names, char_names FROM ad_boxing_alerts_log ORDER BY timerecorded DESC LIMIT 15) "
+			"AS t ORDER BY timerecorded ASC";
+		
+		auto results = database.QueryDatabase(query);
+
+		c->Message(14, "[-- BOXING ALERT LOGS --]");
+
+		for (auto row = results.begin(); row != results.end(); ++row)
+			c->Message(15, "[%s] Accts: {%s} -- Chars: {%s}", row[0], row[1], row[2]);
+	}
+	
+	// Show last X boxing alert log entries
+	if (!strcasecmp(sep->arg[1], "boxing") && sep->arg[2][0] != '\0')
+	{
+		uint32 num = atoi(sep->arg[2]);
+
+		std::string query = StringFormat("SELECT * FROM "
+			"(SELECT timerecorded, account_names, char_names FROM ad_boxing_alerts_log ORDER BY timerecorded DESC LIMIT %i) "
+			"AS t ORDER BY timerecorded ASC", num);
+
+		auto results = database.QueryDatabase(query);
+
+		c->Message(14, "[-- BOXING ALERT LOGS --]");
+
+		for (auto row = results.begin(); row != results.end(); ++row)
+			c->Message(15, "[%s] Accts: {%s} -- Chars: {%s}", row[0], row[1], row[2]);
+	}
+
 }
 
 // All new code added to command.cpp should be BEFORE this comment line. Do no append code to this file below the BOTS code block.

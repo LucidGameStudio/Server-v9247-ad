@@ -79,6 +79,7 @@ void command_d1(Client *c, const Seperator *sep);
 void command_dadflag(Client *c, const Seperator *sep);
 void command_dadhelp(Client *c, const Seperator *sep);
 void command_dadkilltimes(Client *c, const Seperator *sep);
+void command_dadlogs(Client *c, const Seperator *sep);
 void command_damage(Client *c, const Seperator *sep);
 void command_date(Client *c, const Seperator *sep);
 void command_dbspawn2(Client *c, const Seperator *sep);
