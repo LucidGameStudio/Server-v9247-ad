@@ -34,6 +34,7 @@
 #include "web_interface.h"
 #include "wguild_mgr.h"
 #include <set>
+#include <algorithm>
 
 extern WebInterfaceList web_interface;
 
