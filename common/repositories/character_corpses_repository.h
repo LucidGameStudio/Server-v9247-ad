@@ -1,0 +1,73 @@
+#ifndef EQEMU_CHARACTER_CORPSES_REPOSITORY_H
+#define EQEMU_CHARACTER_CORPSES_REPOSITORY_H
+
+#include "../database.h"
+#include "../strings.h"
+#include "base/base_character_corpses_repository.h"
+
+class CharacterCorpsesRepository: public BaseCharacterCorpsesRepository {
+public:
+
+    /**
+     * This file was auto generated and can be modified and extended upon
+     *
+     * Base repository methods are automatically
+     * generated in the "base" version of this repository. The base repository
+     * is immutable and to be left untouched, while methods in this class
+     * are used as extension methods for more specific persistence-layer
+     * accessors or mutators.
+     *
+     * Base Methods (Subject to be expanded upon in time)
+     *
+     * Note: Not all tables are designed appropriately to fit functionality with all base methods
+     *
+     * InsertOne
+     * UpdateOne
+     * DeleteOne
+     * FindOne
+     * GetWhere(std::string where_filter)
+     * DeleteWhere(std::string where_filter)
+     * InsertMany
+     * All
+     *
+     * Example custom methods in a repository
+     *
+     * CharacterCorpsesRepository::GetByZoneAndVersion(int zone_id, int zone_version)
+     * CharacterCorpsesRepository::GetWhereNeverExpires()
+     * CharacterCorpsesRepository::GetWhereXAndY()
+     * CharacterCorpsesRepository::DeleteWhereXAndY()
+     *
+     * Most of the above could be covered by base methods, but if you as a developer
+     * find yourself re-using logic for other parts of the code, its best to just make a
+     * method that can be re-used easily elsewhere especially if it can use a base repository
+     * method and encapsulate filters there
+     */
+
+	// Custom extended repository methods here
+	static int BuryInstance(Database& db, uint16 instance_id) {
+		auto results = db.QueryDatabase(
+			fmt::format(
+				"UPDATE {} SET is_buried = 1, instance_id = 0 WHERE instance_id = {}",
+				TableName(),
+				instance_id
+			)
+		);
+
+		return (results.Success() ? results.RowsAffected() : 0);
+	}
+
+	static int BuryInstances(Database& db, const std::string& joined_instance_ids)
+	{
+		auto results = db.QueryDatabase(
+			fmt::format(
+				"UPDATE {} SET is_buried = 1, instance_id = 0 WHERE instance_id IN ({})",
+				TableName(),
+				joined_instance_ids
+			)
+		);
+
+		return (results.Success() ? results.RowsAffected() : 0);
+	}
+};
+
+#endif //EQEMU_CHARACTER_CORPSES_REPOSITORY_H

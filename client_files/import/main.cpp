@@ -23,9 +23,15 @@
 #include "../../common/platform.h"
 #include "../../common/crash.h"
 #include "../../common/rulesys.h"
-#include "../../common/string_util.h"
+#include "../../common/strings.h"
+#include "../../common/content/world_content_service.h"
+#include "../../common/zone_store.h"
+#include "../../common/path_manager.h"
 
 EQEmuLogSys LogSys;
+WorldContentService content_service;
+ZoneStore zone_store;
+PathManager path;
 
 void ImportSpells(SharedDatabase *db);
 void ImportSkillCaps(SharedDatabase *db);
@@ -37,33 +43,61 @@ int main(int argc, char **argv) {
 	LogSys.LoadLogSettingsDefaults();
 	set_exception_handler();
 
-	Log(Logs::General, Logs::Status, "Client Files Import Utility");
+	path.LoadPaths();
+
+	LogInfo("Client Files Import Utility");
 	if(!EQEmuConfig::LoadConfig()) {
-		Log(Logs::General, Logs::Error, "Unable to load configuration file.");
+		LogError("Unable to load configuration file.");
 		return 1;
 	}
 
 	auto Config = EQEmuConfig::get();
 
 	SharedDatabase database;
-	Log(Logs::General, Logs::Status, "Connecting to database...");
-	if(!database.Connect(Config->DatabaseHost.c_str(), Config->DatabaseUsername.c_str(),
-		Config->DatabasePassword.c_str(), Config->DatabaseDB.c_str(), Config->DatabasePort)) {
-		Log(Logs::General, Logs::Error, "Unable to connect to the database, cannot continue without a "
-			"database connection");
+	SharedDatabase content_db;
+
+	LogInfo("Connecting to database");
+	if (!database.Connect(
+		Config->DatabaseHost.c_str(),
+		Config->DatabaseUsername.c_str(),
+		Config->DatabasePassword.c_str(),
+		Config->DatabaseDB.c_str(),
+		Config->DatabasePort
+	)) {
+		LogError("Unable to connect to the database, cannot continue without a database connection");
 		return 1;
 	}
 
-	database.LoadLogSettings(LogSys.log_settings);
-	LogSys.StartFileLogs();
+	/**
+	 * Multi-tenancy: Content database
+	 */
+	if (!Config->ContentDbHost.empty()) {
+		if (!content_db.Connect(
+			Config->ContentDbHost.c_str() ,
+			Config->ContentDbUsername.c_str(),
+			Config->ContentDbPassword.c_str(),
+			Config->ContentDbName.c_str(),
+			Config->ContentDbPort
+		)) {
+			LogError("Cannot continue without a content database connection");
+			return 1;
+		}
+	} else {
+		content_db.SetMySQL(database);
+	}
 
-	ImportSpells(&database);
-	ImportSkillCaps(&database);
-	ImportBaseData(&database);
+	LogSys.SetDatabase(&database)
+		->SetLogPath(path.GetLogPath())
+		->LoadLogDatabaseSettings()
+		->StartFileLogs();
+
+	ImportSpells(&content_db);
+	ImportSkillCaps(&content_db);
+	ImportBaseData(&content_db);
 	ImportDBStrings(&database);
 
 	LogSys.CloseFileLogs();
-	
+
 	return 0;
 }
 
@@ -97,10 +131,11 @@ bool IsStringField(int i) {
 }
 
 void ImportSpells(SharedDatabase *db) {
-	Log(Logs::General, Logs::Status, "Importing Spells...");
-	FILE *f = fopen("import/spells_us.txt", "r");
+	LogInfo("Importing Spells");
+	std::string file = fmt::format("{}/import/spells_us.txt", path.GetServerPath());
+	FILE *f = fopen(file.c_str(), "r");
 	if(!f) {
-		Log(Logs::General, Logs::Error, "Unable to open import/spells_us.txt to read, skipping.");
+		LogError("Unable to open {} to read, skipping.", file);
 		return;
 	}
 
@@ -119,8 +154,8 @@ void ImportSpells(SharedDatabase *db) {
 			}
 		}
 
-		std::string escaped = ::EscapeString(buffer);
-		auto split = SplitString(escaped, '^');
+		std::string escaped = ::Strings::Escape(buffer);
+		auto split = Strings::Split(escaped, '^');
 		int line_columns = (int)split.size();
 
 		std::string sql;
@@ -173,23 +208,24 @@ void ImportSpells(SharedDatabase *db) {
 
 		spells_imported++;
 		if(spells_imported % 1000 == 0) {
-			Log(Logs::General, Logs::Status, "%d spells imported.", spells_imported);
+			LogInfo("[{}] spells imported", spells_imported);
 		}
 	}
 
 	if(spells_imported % 1000 != 0) {
-		Log(Logs::General, Logs::Status, "%d spells imported.", spells_imported);
+		LogInfo("[{}] spells imported", spells_imported);
 	}
 
 	fclose(f);
 }
 
 void ImportSkillCaps(SharedDatabase *db) {
-	Log(Logs::General, Logs::Status, "Importing Skill Caps...");
+	LogInfo("Importing Skill Caps");
 
-	FILE *f = fopen("import/SkillCaps.txt", "r");
+	std::string file = fmt::format("{}/import/SkillCaps.txt", path.GetServerPath());
+	FILE *f = fopen(file.c_str(), "r");
 	if(!f) {
-		Log(Logs::General, Logs::Error, "Unable to open import/SkillCaps.txt to read, skipping.");
+		LogError("Unable to open {} to read, skipping.", file);
 		return;
 	}
 
@@ -198,17 +234,17 @@ void ImportSkillCaps(SharedDatabase *db) {
 
 	char buffer[2048];
 	while(fgets(buffer, 2048, f)) {
-		auto split = SplitString(buffer, '^');
+		auto split = Strings::Split(buffer, '^');
 
 		if(split.size() < 4) {
 			continue;
 		}
 
 		int class_id, skill_id, level, cap;
-		class_id = atoi(split[0].c_str());
-		skill_id = atoi(split[1].c_str());
-		level = atoi(split[2].c_str());
-		cap = atoi(split[3].c_str());
+		class_id = Strings::ToInt(split[0].c_str());
+		skill_id = Strings::ToInt(split[1].c_str());
+		level = Strings::ToInt(split[2].c_str());
+		cap = Strings::ToInt(split[3].c_str());
 
 		std::string sql = StringFormat("INSERT INTO skill_caps(class, skillID, level, cap) VALUES(%d, %d, %d, %d)",
 			class_id, skill_id, level, cap);
@@ -220,11 +256,12 @@ void ImportSkillCaps(SharedDatabase *db) {
 }
 
 void ImportBaseData(SharedDatabase *db) {
-	Log(Logs::General, Logs::Status, "Importing Base Data...");
+	LogInfo("Importing Base Data");
 
-	FILE *f = fopen("import/BaseData.txt", "r");
+	std::string file = fmt::format("{}/import/BaseData.txt", path.GetServerPath());
+	FILE *f = fopen(file.c_str(), "r");
 	if(!f) {
-		Log(Logs::General, Logs::Error, "Unable to open import/BaseData.txt to read, skipping.");
+		LogError("Unable to open {} to read, skipping.", file);
 		return;
 	}
 
@@ -233,7 +270,7 @@ void ImportBaseData(SharedDatabase *db) {
 
 	char buffer[2048];
 	while(fgets(buffer, 2048, f)) {
-		auto split = SplitString(buffer, '^');
+		auto split = Strings::Split(buffer, '^');
 
 		if(split.size() < 10) {
 			continue;
@@ -243,16 +280,16 @@ void ImportBaseData(SharedDatabase *db) {
 		int level, class_id;
 		double hp, mana, end, unk1, unk2, hp_fac, mana_fac, end_fac;
 
-		level = atoi(split[0].c_str());
-		class_id = atoi(split[1].c_str());
-		hp = atof(split[2].c_str());
-		mana = atof(split[3].c_str());
-		end = atof(split[4].c_str());
-		unk1 = atof(split[5].c_str());
-		unk2 = atof(split[6].c_str());
-		hp_fac = atof(split[7].c_str());
-		mana_fac = atof(split[8].c_str());
-		end_fac = atof(split[9].c_str());
+		level = Strings::ToInt(split[0].c_str());
+		class_id = Strings::ToInt(split[1].c_str());
+		hp = Strings::ToFloat(split[2].c_str());
+		mana = Strings::ToFloat(split[3].c_str());
+		end = Strings::ToFloat(split[4].c_str());
+		unk1 = Strings::ToFloat(split[5].c_str());
+		unk2 = Strings::ToFloat(split[6].c_str());
+		hp_fac = Strings::ToFloat(split[7].c_str());
+		mana_fac = Strings::ToFloat(split[8].c_str());
+		end_fac = Strings::ToFloat(split[9].c_str());
 
 		sql = StringFormat("INSERT INTO base_data(level, class, hp, mana, end, unk1, unk2, hp_fac, "
 			"mana_fac, end_fac) VALUES(%d, %d, %f, %f, %f, %f, %f, %f, %f, %f)",
@@ -265,11 +302,12 @@ void ImportBaseData(SharedDatabase *db) {
 }
 
 void ImportDBStrings(SharedDatabase *db) {
-	Log(Logs::General, Logs::Status, "Importing DB Strings...");
+	LogInfo("Importing DB Strings");
 
-	FILE *f = fopen("import/dbstr_us.txt", "r");
+	std::string file = fmt::format("{}/import/dbstr_us.txt", path.GetServerPath());
+	FILE *f = fopen(file.c_str(), "r");
 	if(!f) {
-		Log(Logs::General, Logs::Error, "Unable to open import/dbstr_us.txt to read, skipping.");
+		LogError("Unable to open {} to read, skipping.", file);
 		return;
 	}
 
@@ -291,7 +329,7 @@ void ImportDBStrings(SharedDatabase *db) {
 			}
 		}
 
-		auto split = SplitString(buffer, '^');
+		auto split = Strings::Split(buffer, '^');
 
 		if(split.size() < 2) {
 			continue;
@@ -300,12 +338,12 @@ void ImportDBStrings(SharedDatabase *db) {
 		std::string sql;
 		int id, type;
 		std::string value;
-		
-		id = atoi(split[0].c_str());
-		type = atoi(split[1].c_str());
-		
+
+		id = Strings::ToInt(split[0].c_str());
+		type = Strings::ToInt(split[1].c_str());
+
 		if(split.size() >= 3) {
-			value = ::EscapeString(split[2]);
+			value = ::Strings::Escape(split[2]);
 		}
 
 		sql = StringFormat("INSERT INTO db_str(id, type, value) VALUES(%u, %u, '%s')",

@@ -25,7 +25,7 @@ public:
 	void Decode(EQApplicationPacket *p) const;
 
 	virtual std::string Describe() const = 0;
-	virtual const EQEmu::versions::ClientVersion ClientVersion() const = 0;
+	virtual const EQ::versions::ClientVersion ClientVersion() const = 0;
 
 protected:
 	//some common coders:
@@ -43,9 +43,6 @@ protected:
 //effectively a singleton, but I decided to do it this way for no apparent reason.
 namespace StructStrategyFactory {
 	void RegisterPatch(EmuOpcode first_opcode, const StructStrategy *structs);
-
-	//does NOT return ownership of the strategy.
-	const StructStrategy *FindPatch(EmuOpcode first_opcode);
 };
 
 

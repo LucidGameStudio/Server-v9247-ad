@@ -1,7 +1,7 @@
 # EQEmulator Core Server
-|Travis CI (Linux)|Appveyor (Windows)   |
-|:---:|:---:| 
-|[![Linux CI](https://travis-ci.org/EQEmu/Server.svg?branch=master)](https://travis-ci.org/EQEmu/Server)   |[![Windows CI](https://ci.appveyor.com/api/projects/status/d0cvokm7u732v8vl/branch/master?svg=true)](https://ci.appveyor.com/project/KimLS/server/branch/master)   |
+| Drone (Linux x64) | Drone (Windows x64)   |
+|:---:|:---:|
+|[![Build Status](http://drone.akkadius.com/api/badges/EQEmu/Server/status.svg)](http://drone.akkadius.com/EQEmu/Server)   |[![Build Status](http://drone.akkadius.com/api/badges/EQEmu/Server/status.svg)](http://drone.akkadius.com/EQEmu/Server)   |
 
 ***
 
@@ -17,16 +17,17 @@
 |:---:|:---:|:---:|
 |**Install Count**|![Windows Install Count](http://analytics.akkadius.com/?install_count&windows_count)|![Linux Install Count](http://analytics.akkadius.com/?install_count&linux_count)| 
 ### > Windows 
-* [Easy Install](http://wiki.eqemulator.org/p?Akkas_PEQ_Server_Installer&frm=Main#from-scratch-installation-instructions-windows)
-* [Advanced Setup](http://wiki.eqemulator.org/p?Complete_Windows-based_Server_Setup_Guide)
 
-
+* [Install Guide](https://docs.eqemu.io/server/installation/server-installation-windows/)
 
 ### > Debian/Ubuntu/CentOS/Fedora
+
+* [Install Guide](https://docs.eqemu.io/server/installation/server-installation-linux/)
+
 * You can use curl or wget to kick off the installer (whichever your OS has)
 > curl -O https://raw.githubusercontent.com/EQEmu/Server/master/utils/scripts/linux_installer/install.sh install.sh && chmod 755 install.sh && ./install.sh
 
-> wget --no-check-certificate https://raw.githubusercontent.com/EQEmu/Server/master/utils/scripts/linux_installer/install.sh -O install.sh && chmod 755 install.sh && ./install.sh
+> wget --no-check-certificate https://raw.githubusercontent.com/EQEmu/Server/master/utils/scripts/linux_installer/install.sh -O install.sh && chmod 755 install.sh && ./install.sh 
 
 ## Supported Clients
 
@@ -55,7 +56,7 @@ forum, although pull requests will be much quicker and easier on all parties.
 
 ## Resources
 - [EQEmulator Forums](http://www.eqemulator.org/forums)
-- [EQEmulator Wiki](http://wiki.eqemulator.org/i?M=Wiki)
+- [EQEmulator Wiki](https://docs.eqemu.io/)
 
 ## Related Repositories
 * [ProjectEQ Quests](https://github.com/ProjectEQ/projecteqquests)
@@ -73,3 +74,10 @@ forum, although pull requests will be much quicker and easier on all parties.
   * GPL Perl - GPL / ActiveState (under the assumption that this is a free project)
   * CPPUnit - GLP StringUtilities - Apache
   * LUA - MIT
+
+## Contributors
+
+<a href="https://github.com/EQEmu/server/graphs/contributors">
+  <img src="https://contributors-img.firebaseapp.com/image?repo=EQEmu/server" />
+</a>
+

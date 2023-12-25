@@ -3,34 +3,34 @@
 #include "database.h"
 #include "worldserver.h"
 #include "../common/eqemu_logsys.h"
-#include "../common/string_util.h"
+#include "../common/strings.h"
 #include "../common/packet_dump.h"
 #include "../common/rulesys.h"
 
 extern WorldServer *worldserver;
-extern Database database;
+extern QSDatabase database;
 
 PlayerLookingForGuild::PlayerLookingForGuild(char *Name, char *Comments, uint32 Level, uint32 Class, uint32 AACount, uint32 Timezone, uint32 TimePosted)
 {
-	this->Name = Name;
-	this->Comments = Comments;
-	this->Level = Level;
-	this->Class = Class;
-	this->AACount = AACount;
-	this->TimeZone = Timezone;
-	this->TimePosted = TimePosted;
+	Name = Name;
+	Comments = Comments;
+	Level = Level;
+	Class = Class;
+	AACount = AACount;
+	TimeZone = Timezone;
+	TimePosted = TimePosted;
 }
 
 GuildLookingForPlayers::GuildLookingForPlayers(char *Name, char *Comments, uint32 FromLevel, uint32 ToLevel, uint32 Classes, uint32 AACount, uint32 Timezone, uint32 TimePosted)
 {
-	this->Name = Name; 
-	this->Comments = Comments;
-	this->FromLevel = FromLevel;
-	this->ToLevel = ToLevel;
-	this->Classes = Classes;
-	this->AACount = AACount;
-	this->TimeZone = Timezone;
-	this->TimePosted = TimePosted;
+	Name = Name;
+	Comments = Comments;
+	FromLevel = FromLevel;
+	ToLevel = ToLevel;
+	Classes = Classes;
+	AACount = AACount;
+	TimeZone = Timezone;
+	TimePosted = TimePosted;
 }
 
 bool LFGuildManager::LoadDatabase()
@@ -44,15 +44,15 @@ bool LFGuildManager::LoadDatabase()
 	}
 
     for (auto row = results.begin(); row != results.end(); ++row) {
-		uint32 type = atoul(row[0]);
+		uint32 type = Strings::ToUnsignedInt(row[0]);
 		if(type == 0)
 		{
-			PlayerLookingForGuild p(row[1], row[2], atoul(row[3]), atoul(row[5]), atoul(row[6]), atoul(row[7]), atoul(row[8]));
+			PlayerLookingForGuild p(row[1], row[2], Strings::ToUnsignedInt(row[3]), Strings::ToUnsignedInt(row[5]), Strings::ToUnsignedInt(row[6]), Strings::ToUnsignedInt(row[7]), Strings::ToUnsignedInt(row[8]));
 			Players.push_back(p);
 			continue;
 		}
 
-        GuildLookingForPlayers g(row[1], row[2], atoul(row[3]), atoul(row[4]), atoul(row[5]), atoul(row[6]), atoul(row[7]), atoul(row[8]));
+        GuildLookingForPlayers g(row[1], row[2], Strings::ToUnsignedInt(row[3]), Strings::ToUnsignedInt(row[4]), Strings::ToUnsignedInt(row[5]), Strings::ToUnsignedInt(row[6]), Strings::ToUnsignedInt(row[7]), Strings::ToUnsignedInt(row[8]));
         Guilds.push_back(g);
 	}
 
